@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/configs"
+	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/crud"
 	e "git.repo.services.lenvendo.ru/grade-factor/echo/internal/repository/echo"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/server"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/pkg/echo"
@@ -103,6 +104,8 @@ func main() {
 
 	}
 
+	crudVar := crud.NewCrud()
+	crudVar.create()
 }
 
 func initHealthService(ctx context.Context, cfg *configs.Config) health.Service {
