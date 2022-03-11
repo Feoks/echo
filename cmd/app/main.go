@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/configs"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/crud"
+	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/db/postgres"
 	e "git.repo.services.lenvendo.ru/grade-factor/echo/internal/repository/echo"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/server"
 	"git.repo.services.lenvendo.ru/grade-factor/echo/pkg/echo"
@@ -63,6 +64,14 @@ func main() {
 	}
 
 	echoRepository := e.NewEcho()
+	db, err := postgres.NewConnection(ctx, cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to init postgres: %s", err)
+		os.Exit(1)
+	}
+	crudRepository := crud.NewCrud(db)
+	crudRepository.create()
+
 	{
 		healthService := initHealthService(ctx, cfg)
 		echoService := initEchoService(ctx, cfg, echoRepository)
@@ -104,8 +113,6 @@ func main() {
 
 	}
 
-	crudVar := crud.NewCrud()
-	crudVar.create()
 }
 
 func initHealthService(ctx context.Context, cfg *configs.Config) health.Service {
