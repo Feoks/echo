@@ -11,31 +11,34 @@ const (
 	GetTaskQuery    = `select * from "task"."tasks" where id=$1`
 	UpdateTaskQuery = `update "task"."tasks" set name=$2, active=$3 where id=$1`
 	DeleteTaskQuery = `delete from "task"."tasks" where id=$1`
+	GetAllQuery     = `select * from "task"."tasks"`
 )
 
 type postgresDb struct {
-	db postgres.Connection
+	db  postgres.Connection
+	ctx context.Context
 }
 
-func newPostgresConnection(conn postgres.Connection) Repository {
+func newPostgresConnection(conn postgres.Connection, ctx context.Context) Repository {
 	return &postgresDb{
-		db: conn,
+		db:  conn,
+		ctx: ctx,
 	}
 }
 
-func (p *postgresDb) execMasterQuery(ctx context.Context, query string, args ...interface{}) err {
-	conn, err := p.db.GetMasterConn(ctx)
+func (p *postgresDb) execMasterQuery(query string, args ...interface{}) error {
+	conn, err := p.db.GetMasterConn(p.ctx)
 	if err != nil {
 		return err
 	}
 	defer conn.Release()
 
-	tx, err := conn.Begin(ctx)
+	tx, err := conn.Begin(p.ctx)
 	if err != nil {
 		return err
 	}
 
-	result, err := tx.Exec(ctx, query, args...)
+	result, err := tx.Exec(p.ctx, query, args...)
 	if err != nil {
 		return err
 	}
@@ -43,71 +46,79 @@ func (p *postgresDb) execMasterQuery(ctx context.Context, query string, args ...
 		return errors.New("no row processed")
 	}
 
-	err = tx.Commit(ctx)
+	err = tx.Commit(p.ctx)
 	if err != nil {
 		return err
 	}
+
+	return nil
 }
 
-func (p *postgresDb) Add(ctx context.Context, task *Task) error {
-	p.execMasterQuery(
-		ctx,
+func (p *postgresDb) Add(task *Task) error {
+	return p.execMasterQuery(
 		AddTaskQuery,
 		task.Id,
 		task.Name,
 		task.Active,
 	)
-
-	return nil
 }
 
-func (p *postgresDb) Get(ctx context.Context, id uint64) (*Task, error) {
-	conn, err := p.db.GetReplicaConn(ctx)
-	if err != nil {
-		conn, err = p.db.GetMasterConn(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	defer conn.Release()
-
-	row := conn.QueryRow(
-		ctx,
-		GetTaskQuery,
+func (p *postgresDb) Delete(id uint64) error {
+	return p.execMasterQuery(
+		DeleteTaskQuery,
 		id,
 	)
-
-	if row == nil {
-		return nil, nil
-	}
-
-	var task *Task
-
-	if err = row.Scan(&task); err != nil {
-		return nil, err
-	}
-
-	return task, nil
 }
 
-func (p *postgresDb) Delete(ctx context.Context, id uint64) error {
-	p.execMasterQuery(
-		ctx,
-		DeleteTaskQuery,
-		task.Id,
-	)
-
-	return nil
-}
-
-func (p *postgresDb) Update(ctx context.Context, task *Task) error {
-	p.execMasterQuery(
-		ctx,
+func (p *postgresDb) Update(task *Task) error {
+	return p.execMasterQuery(
 		UpdateTaskQuery,
 		task.Id,
 		task.Name,
 		task.Active,
 	)
+}
 
-	return nil
+func (p *postgresDb) Get(id uint64) (*Task, error) {
+	conn, err := p.db.GetReplicaConn(p.ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	t := Task{}
+	if err := conn.QueryRow(
+		p.ctx,
+		GetTaskQuery,
+		id,
+	).Scan(&t); err != nil {
+		return nil, err
+	}
+
+	return &t, nil
+}
+
+func (p *postgresDb) GetAll() ([]*Task, error) {
+	conn, err := p.db.GetReplicaConn(p.ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(p.ctx, GetAllQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]*Task, 0)
+	for rows.Next() {
+		t := Task{}
+		if err = rows.Scan(&t); err != nil {
+			return nil, err
+		}
+
+		list = append(list, &t)
+	}
+
+	return list, nil
 }

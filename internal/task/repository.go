@@ -7,30 +7,30 @@ import (
 
 type defaultRepository struct {
 	postgres Repository
-	cache    Repository
+	cache    Cache
 }
 
-func NewRepository(conn postgres.Connection) Repository {
+func NewRepository(conn postgres.Connection, ctx context.Context) Repository {
 	return &defaultRepository{
-		postgres: newPostgresConnection(conn),
+		postgres: newPostgresConnection(conn, ctx),
 		cache:    initCache(),
 	}
 }
 
-func (r *defaultRepository) Add(ctx context.Context, task *Task) error {
-	if err := r.postgres.Add(ctx, task); err != nil {
+func (r *defaultRepository) Add(task *Task) error {
+	if err := r.postgres.Add(task); err != nil {
 		return err
 	}
 
-	if err := r.cache.Add(ctx, task); err != nil {
+	if err := r.cache.Add(task); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *defaultRepository) Get(ctx context.Context, id uint64) (*Task, error) {
-	task, err := r.cache.Get(ctx, id)
+func (r *defaultRepository) Get(id uint64) (*Task, error) {
+	task, err := r.cache.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (r *defaultRepository) Get(ctx context.Context, id uint64) (*Task, error) {
 		return task, nil
 	}
 
-	task, err = r.postgres.Get(ctx, id)
+	task, err = r.postgres.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (r *defaultRepository) Get(ctx context.Context, id uint64) (*Task, error) {
 		return nil, nil
 	}
 
-	err = r.cache.Add(ctx, task)
+	err = r.cache.Add(task)
 	if err != nil {
 		return nil, err
 	}
@@ -54,28 +54,44 @@ func (r *defaultRepository) Get(ctx context.Context, id uint64) (*Task, error) {
 	return task, nil
 }
 
-func (r *defaultRepository) Delete(ctx context.Context, id uint64) error {
-	if err := r.postgres.Delete(ctx, id); err != nil {
+func (r *defaultRepository) Delete(id uint64) error {
+	if err := r.postgres.Delete(id); err != nil {
 		return err
 	}
 
-	if err := r.cache.Delete(ctx, id); err != nil {
+	if err := r.cache.Delete(id); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *defaultRepository) Update(ctx context.Context, task *Task) error {
-	err = r.postgres.Update(ctx, id)
-	if err != nil {
+func (r *defaultRepository) Update(task *Task) error {
+	if err := r.postgres.Update(task); err != nil {
 		return err
 	}
 
-	err = r.cache.Update(ctx, id)
-	if err != nil {
+	if err := r.cache.Update(task); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *defaultRepository) GetAll() ([]*Task, error) {
+	list, err := r.cache.GetAll()
+	if err == nil {
+		return list, nil
+	}
+
+	list, err = r.postgres.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.cache.AddBatch(list); err != nil {
+		return nil, err
+	}
+
+	return list, nil
 }

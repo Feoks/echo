@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "echo"."tasks";
+
+DROP SCHEMA IF EXISTS "echo";
