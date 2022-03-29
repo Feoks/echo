@@ -1,7 +1,6 @@
 package task
 
 import (
-	"context"
 	"sync"
 )
 
@@ -19,7 +18,7 @@ func initCache() Cache {
 	}
 }
 
-func (c *cache) Add(ctx context.Context, task *Task) error {
+func (c *cache) Add(task *Task) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
@@ -29,21 +28,21 @@ func (c *cache) Add(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (c *cache) Get(ctx context.Context, id uint64) (*Task, error) {
+func (c *cache) Get(id uint64) (*Task, error) {
 	c.RWMutex.RLock()
 	defer c.RWMutex.RUnlock()
 
 	return c.tasks[id], nil
 }
 
-func (c *cache) GetAll(ctx context.Context) ([]*Task, error) {
+func (c *cache) GetAll() ([]*Task, error) {
 	c.RWMutex.RLock()
 	defer c.RWMutex.RUnlock()
 
 	return c.tasks, nil
 }
 
-func (c *cache) Update(ctx context.Context, task *Task) error {
+func (c *cache) Update(task *Task) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
@@ -52,7 +51,7 @@ func (c *cache) Update(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (c *cache) Delete(ctx context.Context, id uint64) error {
+func (c *cache) Delete(id uint64) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
@@ -66,6 +65,19 @@ func (c *cache) Reset() error {
 	defer c.RWMutex.Unlock()
 
 	c.tasksMap = make(map[uint64]*Task, 0)
+
+	return nil
+}
+
+func (c *cache) AddBatch(list []*Task) error {
+	c.RWMutex.Lock()
+	defer c.RWMutex.Unlock()
+
+	for _, t := range list {
+		if err := c.Add(t); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

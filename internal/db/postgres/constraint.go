@@ -17,16 +17,19 @@ const (
 		   HAVING COUNT(kcu1.constraint_name) = $3`
 )
 
-func (c *connection) GetConstraintName(ctx context.Context, tableName string, columnNames []string) (constraintName string, err error) {
+func (c *connection) GetConstraintName(ctx context.Context, tableName string, columnNames []string) (constraintName *string, err error) {
 	if len(columnNames) < 1 {
-		return "", errors.New("missing column name's")
+		return nil, errors.New("missing column name's")
 	}
 
-	if conn, err := c.GetMasterConn(ctx); err != nil {
-		return
-	} else {
-		constraintName = ""
-		err = conn.QueryRow(ctx, SQL, tableName, columnNames, len(columnNames)).Scan(&constraintName)
+	conn, err := c.GetMasterConn(ctx)
+	if err != nil {
+		return nil, err
 	}
-	return
+	defer conn.Release()
+
+	constraintName = nil
+	err = conn.QueryRow(ctx, SQL, tableName, columnNames, len(columnNames)).Scan(&constraintName)
+
+	return constraintName, err
 }
