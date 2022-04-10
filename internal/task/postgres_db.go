@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	AddTaskQuery    = `insert into "task"."tasks" ("id", "name", "active") values($1, $2, $3)`
-	GetTaskQuery    = `select * from "task"."tasks" where id=$1`
-	UpdateTaskQuery = `update "task"."tasks" set name=$2, active=$3 where id=$1`
-	DeleteTaskQuery = `delete from "task"."tasks" where id=$1`
-	GetAllQuery     = `select * from "task"."tasks"`
+	AddTaskQuery    = `insert into "echo"."tasks" ("id", "name", "active") values($1, $2, $3)`
+	GetTaskQuery    = `select * from "echo"."tasks" where id=$1`
+	UpdateTaskQuery = `update "echo"."tasks" set name=$2, active=$3 where id=$1`
+	DeleteTaskQuery = `delete from "echo"."tasks" where id=$1`
+	GetAllQuery     = `select * from "echo"."tasks"`
 )
 
 type postgresDb struct {
