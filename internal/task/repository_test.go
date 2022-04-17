@@ -3,14 +3,15 @@ package task
 import (
 	"context"
 	"fmt"
-	"git.repo.services.lenvendo.ru/grade-factor/echo/configs"
-	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/db/postgres"
+	"github.com/Feoks/echo/configs"
+	"github.com/Feoks/echo/internal/db/postgres"
+	"github.com/Feoks/echo/pkg/task"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestNewRepository(t *testing.T) {
-	t1 := &Task{
+	t1 := &task.Task{
 		Id:     1,
 		Name:   "First",
 		Active: true,

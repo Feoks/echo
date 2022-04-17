@@ -1,12 +1,7 @@
-# git.repo.services.lenvendo.ru/grade-factor/api v0.0.0-20210908140242-deef8c82050b
-## explicit
-git.repo.services.lenvendo.ru/grade-factor/api/service
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
 # github.com/bxcodec/faker v2.0.1+incompatible
 ## explicit
-github.com/bxcodec/faker
-github.com/bxcodec/faker/support/slice
 # github.com/cespare/xxhash/v2 v2.1.2
 github.com/cespare/xxhash/v2
 # github.com/davecgh/go-spew v1.1.1
@@ -50,7 +45,6 @@ github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/google/uuid v1.3.0
 ## explicit
-github.com/google/uuid
 # github.com/gorilla/mux v1.8.0
 ## explicit
 github.com/gorilla/mux
@@ -268,14 +262,12 @@ google.golang.org/grpc/status
 google.golang.org/grpc/tap
 # google.golang.org/protobuf v1.27.1
 ## explicit
-google.golang.org/protobuf/encoding/protojson
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
 google.golang.org/protobuf/internal/descopts
 google.golang.org/protobuf/internal/detrand
 google.golang.org/protobuf/internal/encoding/defval
-google.golang.org/protobuf/internal/encoding/json
 google.golang.org/protobuf/internal/encoding/messageset
 google.golang.org/protobuf/internal/encoding/tag
 google.golang.org/protobuf/internal/encoding/text
@@ -299,7 +291,6 @@ google.golang.org/protobuf/runtime/protoimpl
 google.golang.org/protobuf/types/descriptorpb
 google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
-google.golang.org/protobuf/types/known/structpb
 google.golang.org/protobuf/types/known/timestamppb
 # gopkg.in/ini.v1 v1.63.2
 gopkg.in/ini.v1

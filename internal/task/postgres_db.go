@@ -3,7 +3,8 @@ package task
 import (
 	"context"
 	"errors"
-	"git.repo.services.lenvendo.ru/grade-factor/echo/internal/db/postgres"
+	"github.com/Feoks/echo/internal/db/postgres"
+	"github.com/Feoks/echo/pkg/task"
 )
 
 const (
@@ -54,7 +55,7 @@ func (p *postgresDb) execMasterQuery(query string, args ...interface{}) error {
 	return nil
 }
 
-func (p *postgresDb) Add(task *Task) error {
+func (p *postgresDb) Add(task *task.Task) error {
 	return p.execMasterQuery(
 		AddTaskQuery,
 		task.Id,
@@ -70,7 +71,7 @@ func (p *postgresDb) Delete(id uint64) error {
 	)
 }
 
-func (p *postgresDb) Update(task *Task) error {
+func (p *postgresDb) Update(task *task.Task) error {
 	return p.execMasterQuery(
 		UpdateTaskQuery,
 		task.Id,
@@ -79,14 +80,14 @@ func (p *postgresDb) Update(task *Task) error {
 	)
 }
 
-func (p *postgresDb) Get(id uint64) (*Task, error) {
+func (p *postgresDb) Get(id uint64) (*task.Task, error) {
 	conn, err := p.db.GetReplicaConn(p.ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Release()
 
-	t := Task{}
+	t := task.Task{}
 	if err := conn.QueryRow(
 		p.ctx,
 		GetTaskQuery,
@@ -98,7 +99,7 @@ func (p *postgresDb) Get(id uint64) (*Task, error) {
 	return &t, nil
 }
 
-func (p *postgresDb) GetAll() ([]*Task, error) {
+func (p *postgresDb) GetAll() ([]*task.Task, error) {
 	conn, err := p.db.GetReplicaConn(p.ctx)
 	if err != nil {
 		return nil, err
@@ -110,9 +111,9 @@ func (p *postgresDb) GetAll() ([]*Task, error) {
 		return nil, err
 	}
 
-	list := make([]*Task, 0)
+	list := make([]*task.Task, 0)
 	for rows.Next() {
-		t := Task{}
+		t := task.Task{}
 		if err = rows.Scan(&t); err != nil {
 			return nil, err
 		}

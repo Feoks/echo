@@ -1,24 +1,25 @@
 package task
 
 import (
+	"github.com/Feoks/echo/pkg/task"
 	"sync"
 )
 
 type cache struct {
 	sync.RWMutex
 
-	tasks    []*Task
-	tasksMap map[uint64]*Task
+	tasks    []*task.Task
+	tasksMap map[uint64]*task.Task
 }
 
 func initCache() Cache {
 	return &cache{
-		tasks:    make([]*Task, 0),
-		tasksMap: make(map[uint64]*Task, 0),
+		tasks:    make([]*task.Task, 0),
+		tasksMap: make(map[uint64]*task.Task, 0),
 	}
 }
 
-func (c *cache) Add(task *Task) error {
+func (c *cache) Add(task *task.Task) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
@@ -28,21 +29,21 @@ func (c *cache) Add(task *Task) error {
 	return nil
 }
 
-func (c *cache) Get(id uint64) (*Task, error) {
+func (c *cache) Get(id uint64) (*task.Task, error) {
 	c.RWMutex.RLock()
 	defer c.RWMutex.RUnlock()
 
 	return c.tasks[id], nil
 }
 
-func (c *cache) GetAll() ([]*Task, error) {
+func (c *cache) GetAll() ([]*task.Task, error) {
 	c.RWMutex.RLock()
 	defer c.RWMutex.RUnlock()
 
 	return c.tasks, nil
 }
 
-func (c *cache) Update(task *Task) error {
+func (c *cache) Update(task *task.Task) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
@@ -64,12 +65,12 @@ func (c *cache) Reset() error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 
-	c.tasksMap = make(map[uint64]*Task, 0)
+	c.tasksMap = make(map[uint64]*task.Task, 0)
 
 	return nil
 }
 
-func (c *cache) AddBatch(list []*Task) error {
+func (c *cache) AddBatch(list []*task.Task) error {
 	c.RWMutex.Lock()
 	defer c.RWMutex.Unlock()
 

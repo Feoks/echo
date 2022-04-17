@@ -5,9 +5,9 @@ import (
 	"context"
 	"errors"
 
-	pb "git.repo.services.lenvendo.ru/grade-factor/echo/internal/echopb"
-	"git.repo.services.lenvendo.ru/grade-factor/echo/tools/logging"
-	"git.repo.services.lenvendo.ru/grade-factor/echo/tools/tracing"
+	pb "github.com/Feoks/echo/internal/echopb"
+	"github.com/Feoks/echo/tools/logging"
+	"github.com/Feoks/echo/tools/tracing"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/tracing/opentracing"
 	"github.com/go-kit/kit/transport/grpc"
